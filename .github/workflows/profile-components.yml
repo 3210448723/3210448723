@@ -1,0 +1,94 @@
+name: Refresh profile components
+
+on:
+  push:
+    branches: [main, design/maintained-components]
+    paths:
+      - README.md
+      - .github/workflows/profile-components.yml
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: profile-components
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Render GitHub Readme Stats
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: stats
+          options: username=3210448723&show_icons=true&theme=github_dark&hide_rank=true&hide=commits,contribs&card_width=390&disable_animations=true&custom_title=GitHub%20Stats
+          path: assets/stats.svg
+          token: ${{ github.token }}
+          fail_on_error: true
+
+      - name: Render top languages
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: top-langs
+          options: username=3210448723&layout=compact&theme=github_dark&card_width=390&langs_count=6&exclude_repo=3210448723.github.io&disable_animations=true
+          path: assets/languages.svg
+          token: ${{ github.token }}
+          fail_on_error: true
+
+      - name: Render community contributions and follow-up
+        uses: lowlighter/metrics@latest
+        with:
+          token: ${{ secrets.METRICS_TOKEN || github.token }}
+          user: '3210448723'
+          base: ''
+          filename: metrics-community.svg
+          output_action: none
+          config_animations: no
+          config_padding: 0, 0
+          config_order: notable, followup
+          extras_css: '@media(prefers-color-scheme:dark){svg{color:#c9d1d9}h1,h2,h3{color:#58a6ff}}'
+          plugin_notable: yes
+          plugin_notable_from: all
+          plugin_notable_types: pull_request
+          plugin_notable_repositories: yes
+          plugin_notable_self: no
+          plugin_followup: yes
+          plugin_followup_sections: user
+          plugins_errors_fatal: yes
+
+      - name: Collect rendered Metrics components
+        run: |
+          test -s /metrics_renders/metrics-community.svg
+          cp /metrics_renders/metrics-community.svg assets/metrics-community.svg
+
+      - name: Validate generated component images
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          for name in ('stats.svg', 'languages.svg', 'metrics-community.svg'):
+              path = Path('assets') / name
+              root = ET.parse(path).getroot()
+              content = ' '.join(root.itertext()).lower()
+              for error in ('resource not accessible', 'something went wrong', 'could not fetch', 'no recent contributions matching filters found'):
+                  if error in content:
+                      raise SystemExit(f'{name}: unexpected error or empty component')
+              print(f'Validated {name}: {path.stat().st_size} bytes')
+          PY
+
+      - name: Commit updated component images
+        run: |
+          git add assets/stats.svg assets/languages.svg assets/metrics-community.svg
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore: refresh profile components'
+          git push
