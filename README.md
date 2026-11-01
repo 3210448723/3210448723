@@ -50,7 +50,7 @@ I like open source, build practical tools, and share notes on machine learning a
 ### GitHub Stats
 
 <p align="center">
-  <a href="https://github.com/3210448723?tab=repositories"><img align="top" width="390" src="./assets/stats.svg" alt="GitHub Readme Stats: public Stars, pull requests and issues"></a>
+  <a href="https://github.com/3210448723?tab=repositories"><img align="top" width="390" src="./assets/stats.svg" alt="GitHub Readme Stats: public Stars, commits and repositories contributed to"></a>
   <a href="https://github.com/3210448723?tab=repositories"><img align="top" width="390" src="./assets/languages.svg" alt="GitHub Readme Stats: top languages in public non-fork repositories"></a>
 </p>
 

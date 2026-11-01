@@ -9,6 +9,8 @@ The profile uses existing third-party components. The community update script ad
 | `metrics-community.svg` | [lowlighter/metrics](https://github.com/lowlighter/metrics), MIT | The workflow fetches the official stable templates and refreshes Notable Contributions and Follow-up from public GitHub REST data. |
 | Technology badges | [Shields](https://shields.io/), CC0 | Embedded from the public badge API. |
 
+The overview displays Stars, commits and contributed-to repositories. PR and issue states are displayed only by the community component so the profile does not mix the different libraries' PR/issue query definitions.
+
 The initial preview snapshots were generated on 2026-11-01 using the maintainers' Stats renderer and Metrics EJS templates. The scheduled community renderer uses the same upstream templates, populated with the complete public PR and issue search history for this account. It follows GitHub's `author:` search attribution, which can include Copilot PRs created on the account's behalf. External project badges list repositories with public PRs, including open and unmerged PRs; the follow-up bars distinguish PR states. Issue closures marked `not_planned` appear as skipped. Search must return complete results or the workflow fails; GitHub limits search results to 1,000 items per query.
 
 The [workflow](https://github.com/3210448723/3210448723/actions/workflows/profile-components.yml) is scheduled for 03:17 UTC (11:17 Asia/Shanghai), can run manually, and runs after changes to the README or workflow are pushed. All three SVG files are regenerated together and committed only after validation. A failed component fails the run instead of silently skipping its update.
