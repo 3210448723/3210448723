@@ -31,7 +31,7 @@ jobs:
         uses: stats-organization/github-readme-stats-action@v2
         with:
           card: stats
-          options: username=3210448723&show_icons=true&theme=github_dark&hide_rank=true&hide=prs,issues&card_width=390&disable_animations=true&custom_title=GitHub%20Stats
+          options: username=3210448723&show_icons=true&theme=github_dark&hide_rank=true&hide=prs,issues&include_all_commits=true&card_width=390&disable_animations=true&custom_title=GitHub%20Stats
           path: assets/stats.svg
           token: ${{ github.token }}
           fail_on_error: true
