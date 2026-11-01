@@ -63,4 +63,4 @@ I like open source, build practical tools, and share notes on machine learning a
 - **[gradio-app/gradio #8077](https://github.com/gradio-app/gradio/pull/8077)** · Merged · Fix UTF-8 decoding when reading code files.
 - **[Alpha-Dojo/DojoAgents #116](https://github.com/Alpha-Dojo/DojoAgents/pull/116)** · Merged · Add Tavily search and extraction backend for web tools.
 
-<sub>Public GitHub data only. Language usage excludes blog build output and does not represent proficiency.</sub>
+<sub>Public GitHub data only. Language usage excludes generated profile/blog output and does not represent proficiency.</sub>

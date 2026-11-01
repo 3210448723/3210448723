@@ -5,7 +5,7 @@ The profile uses existing third-party components. It contains no custom chart ge
 | File / card | Maintainer | Updates |
 | --- | --- | --- |
 | `stats.svg` | [anuraghazra/github-readme-stats](https://github.com/anuraghazra/github-readme-stats), MIT | The maintainer-recommended [Stats Action](https://github.com/stats-organization/github-readme-stats-action) refreshes it daily. |
-| `languages.svg` | [anuraghazra/github-readme-stats](https://github.com/anuraghazra/github-readme-stats), MIT | The same Stats Action refreshes the language card daily. It aggregates public non-fork repository language bytes, excluding the generated blog repository. |
+| `languages.svg` | [anuraghazra/github-readme-stats](https://github.com/anuraghazra/github-readme-stats), MIT | The same Stats Action refreshes the language card daily. It aggregates public non-fork repository language bytes, excluding this generated profile repository and the generated blog repository. |
 | `metrics-community.svg` | [lowlighter/metrics](https://github.com/lowlighter/metrics), MIT | The official Action refreshes Notable Contributions and Follow-up on every workflow run. |
 | Technology badges | [Shields](https://shields.io/), CC0 | Embedded from the public badge API. |
 
