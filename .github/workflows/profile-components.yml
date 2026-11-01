@@ -12,7 +12,7 @@ on:
 
 concurrency:
   group: profile-components
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -20,6 +20,7 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -44,9 +45,10 @@ jobs:
       - name: Render community contributions and follow-up
         uses: lowlighter/metrics@latest
         with:
-          token: ${{ secrets.METRICS_TOKEN || github.token }}
+          token: ${{ github.token }}
           user: '3210448723'
           base: ''
+          repositories: 1
           filename: metrics-community.svg
           output_action: none
           config_animations: no
