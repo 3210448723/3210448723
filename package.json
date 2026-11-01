@@ -1,0 +1,12 @@
+{
+  "name": "yjm-profile-components",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render:community": "node scripts/update-community.mjs"
+  },
+  "dependencies": {
+    "ejs": "3.1.10",
+    "puppeteer-core": "24.15.0"
+  }
+}

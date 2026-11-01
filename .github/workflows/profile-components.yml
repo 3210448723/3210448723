@@ -6,6 +6,9 @@ on:
     paths:
       - README.md
       - .github/workflows/profile-components.yml
+      - package.json
+      - package-lock.json
+      - scripts/update-community.mjs
   schedule:
     - cron: '17 3 * * *'
   workflow_dispatch:
@@ -42,32 +45,28 @@ jobs:
           token: ${{ github.token }}
           fail_on_error: true
 
-      - name: Render community contributions and follow-up
-        uses: lowlighter/metrics@latest
+      - name: Set up the community component runtime
+        uses: actions/setup-node@v4
         with:
-          token: ${{ github.token }}
-          user: '3210448723'
-          base: ''
-          repositories: 1
-          filename: metrics-community.svg
-          output_action: none
-          config_animations: no
-          config_padding: 0, 0
-          config_order: notable, followup
-          extras_css: '@media(prefers-color-scheme:dark){svg{color:#c9d1d9}h1,h2,h3{color:#58a6ff}}'
-          plugin_notable: yes
-          plugin_notable_from: all
-          plugin_notable_types: pull_request
-          plugin_notable_repositories: yes
-          plugin_notable_self: no
-          plugin_followup: yes
-          plugin_followup_sections: user
-          plugins_errors_fatal: yes
+          node-version: '22'
+          cache: npm
 
-      - name: Collect rendered Metrics components
-        run: |
-          test -s /metrics_renders/metrics-community.svg
-          cp /metrics_renders/metrics-community.svg assets/metrics-community.svg
+      - name: Fetch the maintained Metrics templates
+        uses: actions/checkout@v4
+        with:
+          repository: lowlighter/metrics
+          ref: latest
+          path: .metrics-source
+          persist-credentials: false
+          sparse-checkout: source/templates/classic
+
+      - name: Install the template runtime
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Refresh public contributions with Metrics templates
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npm run render:community
 
       - name: Validate generated component images
         run: |
