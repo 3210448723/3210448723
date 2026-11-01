@@ -107,7 +107,7 @@ const context = {
   large: false, columns: false, animated: false,
   fonts: await fs.readFile(path.join(templateDir, 'fonts.css'), 'utf8'),
   style: await fs.readFile(path.join(templateDir, 'style.css'), 'utf8'),
-  extras: { css: '@media(prefers-color-scheme:dark){svg{color:#c9d1d9}h1,h2,h3{color:#58a6ff}}' },
+  extras: { css: '.items-wrapper{line-height:1.5}@media(prefers-color-scheme:dark){svg{color:#c9d1d9}h1,h2,h3{color:#58a6ff}}' },
   warnings: [], partials: ['notable', 'followup'], base: { metadata: false },
   user: { login: user, name: 'YJM' }, account: 'user',
   plugins: { notable: { contributions, types: ['pull_request'] }, followup },
@@ -121,14 +121,52 @@ const browser = await puppeteer.launch({ channel: 'chrome', headless: true, args
 try {
   const page = await browser.newPage();
   await page.goto(pathToFileURL(temporaryFile).href, { waitUntil: 'networkidle0' });
-  const height = await page.$eval('.items-wrapper', element => Math.ceil(element.getBoundingClientRect().height) + 10);
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all([...document.images].map(image => image.decode()));
+  });
+  // The default system font differs between CI and profile visitors. Measure
+  // fallback fonts too, and include the wrapper's offset and overflowing text.
+  const layout = await page.$eval('.items-wrapper', async element => {
+    const originalFont = element.style.fontFamily;
+    const fonts = ['', 'system-ui', 'Arial, sans-serif', 'sans-serif'];
+    const bounds = () => {
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      return Math.max(
+        ...[element, ...element.querySelectorAll('*')].map(node => node.getBoundingClientRect().bottom),
+        ...[...range.getClientRects()].map(rect => rect.bottom),
+      );
+    };
+    const measurements = [];
+    for (const font of fonts) {
+      element.style.fontFamily = font;
+      await document.fonts.ready;
+      measurements.push({ font: font || 'upstream default', bottom: bounds() });
+    }
+    element.style.fontFamily = originalFont;
+    return measurements;
+  });
+  const height = Math.ceil(Math.max(...layout.map(({ bottom }) => bottom))) + 16;
   if (!(height > 0 && height < 3000)) throw new Error('Unexpected Metrics component height');
   svg = svg.replace('height="99999"', `height="${height}"`);
   if (/\b(?:NaN|undefined)\b/.test(svg)) throw new Error('Invalid template output');
+  // Check the final viewport as well: decoding an SVG alone does not detect
+  // cropped legends. Fail the scheduled update instead of publishing one.
+  await page.evaluate(height => document.documentElement.setAttribute('height', height), height);
+  for (const { font } of layout) {
+    const bottom = await page.$eval('.items-wrapper', (element, font) => {
+      element.style.fontFamily = font === 'upstream default' ? '' : font;
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      return Math.max(...[...range.getClientRects()].map(rect => rect.bottom));
+    }, font);
+    if (bottom > height - 8) throw new Error(`Clipped Metrics content with ${font}`);
+  }
   await fs.mkdir(path.dirname(output), { recursive: true });
   await fs.writeFile(`${output}.tmp.svg`, svg);
   await fs.rename(`${output}.tmp.svg`, output);
-  console.log(JSON.stringify({ publicPRs: prs.length, publicIssues: issues.length, externalProjects: handles.length, states: followup.user }));
+  console.log(JSON.stringify({ publicPRs: prs.length, publicIssues: issues.length, externalProjects: handles.length, states: followup.user, height, layout }));
 } finally {
   await browser.close();
   await fs.unlink(temporaryFile);

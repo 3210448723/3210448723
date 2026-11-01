@@ -18,3 +18,5 @@ The [workflow](https://github.com/3210448723/3210448723/actions/workflows/profil
 Only public information is intended. All authenticated requests use the repository's temporary `GITHUB_TOKEN`, and the community searches explicitly include `is:public`. This workflow does not request a personal token or private repository access. Avatar downloads receive no API token. Public API access is checked by executing the workflow before publishing the profile.
 
 The images embedded by the profile are regenerated component outputs, not hard-coded data. GitHub schedules may be delayed and image caching may delay when a new version becomes visible. The timestamp of the latest successful workflow run is the refresh receipt; each component retains its own public-data query definition.
+
+The community renderer uses an explicit line height, waits for fonts and avatars, and measures the complete content bounds with the upstream system font and common fallback fonts. It includes the top offset and bottom padding when sizing the SVG, then checks that text fits the final viewport. This prevents CI font differences from cropping the bottom status legends on another operating system.
